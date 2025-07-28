@@ -13,6 +13,35 @@
       pkgs.qmk-udev-rules
     ];
 
+programs.appimage = {
+  enable = true;
+  binfmt = true;
+};
+
+programs.k3b.enable = true;
+
+# programs.partition-manager.enable = true;
+
+  programs.obs-studio = {
+    enable = true;
+
+    # optional Nvidia hardware acceleration
+    package = (
+      pkgs.obs-studio.override {
+        cudaSupport = true;
+      }
+    );
+
+    plugins = with pkgs.obs-studio-plugins; [
+      wlrobs
+      obs-backgroundremoval
+      obs-pipewire-audio-capture
+      obs-vaapi #optional AMD hardware acceleration
+      obs-gstreamer
+      obs-vkcapture
+    ];
+};
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -89,7 +118,7 @@
   users.users.waffles = {
     isNormalUser = true;
     description = "waffles";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "cdrom" ];
     packages = with pkgs; [
       kdePackages.kate
     #  thunderbird
@@ -116,33 +145,70 @@ virtualisation.podman = {
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-pkgs.yt-dlp
-pkgs.distrobox
+yt-dlp
+distrobox
 wineWowPackages.stable
-pkgs.vlc
-pkgs.mpv
-pkgs.google-chrome
-pkgs.brlaser
-  ];
+mpv
+brlaser
+fastfetch
+nixfmt-rfc-style
+bolt-launcher
+spotify
+gajim
+profanity
+prismlauncher
+cdrtools
+weechat
+exfat
+exfatprogs
+kdePackages.partitionmanager
+gimp
+nicotine-plus
+audacious
+github-desktop
 
-  # Some programs need SUID wrappers, can be configured further or are
+    (discord.override {
+      # withOpenASAR = true; # can do this here too
+
+
+      withVencord = true;
+    })
+];
+ 
+
+#    security.wrappers = {
+#      cdrdao = {
+#        setuid = true;
+#        owner = "root";
+#        group = "cdrom";
+#        permissions = "u+wrx,g+x";
+#        source = "${pkgs.cdrdao}/bin/cdrdao";
+#      };
+#      cdrecord = {
+#        setuid = true;
+#        owner = "root";
+#        group = "cdrom";
+#        permissions = "u+wrx,g+x";
+#        source = "${pkgs.cdrtools}/bin/cdrecord";
+#      };
+#};
+ # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
   # programs.gnupg.agent = {
   #   enable = true;
   #   enableSSHSupport = true;
   # };
-
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+   networking.firewall.allowedTCPPorts = [ 2234 ];
+   networking.firewall.allowedUDPPorts = [ 2234 ];
   # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+   networking.firewall.enable = false;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -150,7 +216,7 @@ pkgs.brlaser
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "25.05"; # Did you read the comment?
 
   # Enable OpenGL
   hardware.graphics = {
@@ -182,7 +248,6 @@ pkgs.brlaser
     # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
     # Only available from driver 515.43.04+
     open = true;
-
     # Enable the Nvidia settings menu,
 	# accessible via `nvidia-settings`.
     nvidiaSettings = true;
